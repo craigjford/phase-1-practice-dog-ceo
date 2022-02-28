@@ -1,37 +1,90 @@
 //console.log('%c HI', 'color: firebrick')
 
-const breedArr = [];
+let breedArr = []; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log('DOMContentLoaded is completed');
+
     event.preventDefault();
     const imgUrl = "https://dog.ceo/api/breeds/image/random/4"
     fetchImages(imgUrl);
     const breedUrl = 'https://dog.ceo/api/breeds/list/all';
-    fetchBreeds(breedUrl); 
+    fetchBreeds(breedUrl);
 })
 
-function chgLiColor(event) {
-    console.log('opt value = ' + optValue);
-    console.log(event.textContent)
-    console.log(event.target)
-    console.log(event.target.style.color)
-    console.log('cjf1');
-    console.log('cjf2');
-    console.log('cjf3');
+function chgLiColor(typeDog) {
+
+    let dogValue = document.getElementById(typeDog);
+    let dogColor = document.querySelector("#" + typeDog).style.color
+    if (dogColor === "") {
+        dogColor = "black";
+    }
+    switch(dogColor) {
+        case "black":
+            dogValue.style.color = "blue";
+            break;   
+        case "blue":
+            dogValue.style.color = "red";
+            break;
+         case "red":
+            dogValue.style.color = "green";
+            break;   
+        case "green":
+            dogValue.style.color = "orange";
+            break;
+        case "orange":
+            dogValue.style.color = "purple";
+            break;   
+        case "purple":
+            dogValue.style.color = "maroon";;
+            break;
+        default:
+            window.alert('How about picking on another Li');    
+    }
+    
 }
 
-function doStartsWith(optSelect) {
-    debugger;
-    console.log('opt value = ' + optSelect);
-    filterBreedArr = breedArr.filter(breed => breed.startsWith(optSelect))
-    //console.log(event);
-    //console.log(event.textContent)
-    //console.log(event.target)
-    //console.log(event.target.style.color)
-    console.log('cjf1');
-    console.log('cjf2');
-    console.log('cjf3');
+function removeAllLiChildren() {
+
+    let children = document.querySelectorAll('li');
+    let arrayNum = children.length - 1;
+
+    while (arrayNum >= 0) {
+        children[arrayNum].remove();
+        arrayNum = arrayNum - 1;       
+    }  
+}
+
+function doStartsWith(optSelect) {   
+    removeAllLiChildren();
+    let filterBreedArr = [];
+
+    if (optSelect === 'z'){
+         filterBreedArr = breedArr;
+    } else {
+         filterBreedArr = breedArr.filter(breed => breed.startsWith(optSelect));
+    }
+
+    let container = document.getElementById("dog-breeds");
+    for (let i = 0; i < filterBreedArr.length; i++) { 
+        let liDog = document.createElement("li");
+        liDog.textContent = filterBreedArr[i];
+        liDog.setAttribute('id', liDog.textContent);
+        container.appendChild(liDog);
+    }
+}
+
+function buildLi(breedObj) {
+
+    //console.log('breedObj = ', breedObj);
+    let getUL = document.getElementById("dog-breeds")
+
+    for (key in breedObj) { 
+         let liDog = document.createElement("li");
+         liDog.setAttribute('id', key);
+         liDog.textContent = key;
+         breedArr.push(key);
+         getUL.appendChild(liDog);
+     } 
 }
 
 function handleError(err) {
@@ -39,30 +92,24 @@ function handleError(err) {
 }
 
 
-function logSelection(event) {
-    const log = document.getElementById('log');
-    const selection = event.target.value.substring(event.target.selectionStart, event.target.selectionEnd);
-    log.textContent = `You selected: ${selection}`;
-  }
-
-  debugger;
-  const input = document.querySelector('#breed-dropdown');
-  input.addEventListener('change', (event) => {
-      //const result = document.querySelector(".result");
-      console.log(`result value  = ${result.textContent}`)
-      console.log(`event target value = ${event.target.value}`)
-      let optValue = event.target.value;
-      doStartsWith(optValue);
+  const inSelect = document.getElementById('breed-dropdown');
+  inSelect.addEventListener('change', (event) => {
+    let optValue = inSelect.value;
+    doStartsWith(optValue);
   }) 
 
-  window.addEventListener("click", event => {
-      console.log('event = ')
-  }
+  const dogSelect = document.getElementById('dog-breeds');
+  dogSelect.addEventListener('click', (event) => {
+    let dogValue = event.target.textContent;
+    chgLiColor(dogValue);
+  })  
+
+
 
 function fetchImages(imgUrl) {
     fetch(imgUrl)
     .then(resp => resp.json())
-    .then(data => {
+    .then(data => { 
         console.log(`data = ${data}`)
         const picArr = data.message
         let getImgDiv = document.getElementById("dog-image-container")
@@ -88,16 +135,6 @@ function fetchBreeds(breedUrl) {
     .then(data => {
         console.log(`data = ${data}`)
         const breedObj = data.message
-        let getUL = document.getElementById("dog-breeds")
-
-        for (key in breedObj) { 
-            let liDog = document.createElement("li");
-            liDog.textContent = key;
-            breedArr.push(key);
-            getUL.appendChild(liDog);
-        }
-    })
-    .catch(function (error) {
-        handleError(error)
+        buildLi(breedObj);
     })
 }
